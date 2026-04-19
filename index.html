@@ -129,6 +129,12 @@ body { font-family: Arial, Helvetica, sans-serif; background: #f4f6f9; color: #2
   cursor: pointer; transition: background 0.15s;
 }
 .add-btn:hover { background: #1a2f6e; }
+.remove-btn {
+  padding: 6px 8px; background: #e74c3c; color: white;
+  border: none; border-radius: 7px; font-size: 0.82rem;
+  cursor: pointer; transition: background 0.15s; flex-shrink: 0;
+}
+.remove-btn:hover { background: #c0392b; }
 .add-btn.added { background: #27ae60; }
 .empty-msg { grid-column: 1/-1; text-align: center; padding: 60px 20px; color: #8898bb; font-size: 1.1rem; }
 .modal-overlay {
@@ -208,7 +214,7 @@ body { font-family: Arial, Helvetica, sans-serif; background: #f4f6f9; color: #2
     </div>
     <div id="orderDate" style="font-size:0.85rem;color:#8898bb;margin-bottom:14px;"></div>
     <table class="order-table">
-      <thead><tr><th>#</th><th>שם מוצר</th><th>ברקוד</th><th>מותג</th><th>כמות</th><th>הערה</th></tr></thead>
+      <thead><tr><th>#</th><th>שם מוצר</th><th>ברקוד</th><th>מותג</th><th>כמות</th><th></th><th>הערה</th></tr></thead>
       <tbody id="orderTableBody"></tbody>
     </table>
     <p class="print-note">* ניתן להדפיס דף זה לשליחה</p>
@@ -364,12 +370,44 @@ function renderGrid() {
           '<span class="qty-label">כמות:</span>' +
           '<input type="number" class="qty-input" id="qty_' + bc + '" value="' + qtyVal + '" min="1" oninput="if(cart[\'' + bc + '\']>0)updateCartQty(\'' + bc + '\',this.value)">' +
           '<button class="' + btnClass + '" onclick="addToCart(\'' + bc + '\')">' + btnText + '</button>' +
+          (inCart ? '<button class="remove-btn" onclick="removeFromCart(\'' + bc + '\')" title="הסר">✕</button>' : '') +
         '</div>' +
       '</div>' +
     '</div>';
   }
   grid.innerHTML = html;
+  // Generate barcodes
+  setTimeout(function() {
+    if (typeof JsBarcode === 'undefined') return;
+    var svgs = grid.querySelectorAll('svg.barcode');
+    svgs.forEach(function(svg) {
+      var bc = svg.id.replace('bc_', '');
+      if (bc && bc.length > 3) {
+        try {
+          JsBarcode(svg, bc, {format:'CODE128', width:1.2, height:38, displayValue:false, margin:2});
+        } catch(e) {}
+      }
+    });
+  }, 200);
+}
 
+function removeFromCart(bc) {
+  delete cart[bc];
+  delete notes[bc];
+  updateCartBar();
+  // Update card visually
+  var card = document.getElementById('card_' + bc);
+  if (card) {
+    card.classList.remove('in-cart');
+    var btn = card.querySelector('.add-btn');
+    if (btn) { btn.textContent = '+ הוסף'; btn.classList.remove('added'); }
+    var removeBtn = card.querySelector('.remove-btn');
+    if (removeBtn) removeBtn.remove();
+  }
+  // Re-render order table if open
+  if (document.getElementById('orderModal').classList.contains('show')) {
+    showOrder();
+  }
 }
 
 function addToCart(bc) {
@@ -429,7 +467,7 @@ function showOrder() {
     var brand = p ? p.br || '' : '';
     var name = p ? p.n : bc;
     var noteVal = notes[bc] || '';
-    rows += '<tr><td>' + (i+1) + '</td><td>' + name + '</td><td style="font-family:monospace;font-size:0.75rem">' + bc + '</td><td>' + brand + '</td><td><input type="number" class="qty-input" style="width:60px" value="' + cart[bc] + '" min="1" oninput="updateCartQty(\'' + bc + '\',this.value)"></td><td><input class="note-input" type="text" placeholder="הערה..." value="' + noteVal.replace(/"/g,'&quot;') + '" onchange="notes[\'' + bc + '\']=this.value" oninput="notes[\'' + bc + '\']=this.value"></td></tr>';
+    rows += '<tr><td>' + (i+1) + '</td><td>' + name + '</td><td style="font-family:monospace;font-size:0.75rem">' + bc + '</td><td>' + brand + '</td><td><input type="number" class="qty-input" style="width:60px" value="' + cart[bc] + '" min="1" oninput="updateCartQty(\'' + bc + '\',this.value)"></td><td><button onclick="removeFromCart(\'' + bc + '\')" style="background:#e74c3c;color:white;border:none;border-radius:5px;padding:3px 8px;cursor:pointer;font-size:0.8rem;">הסר</button></td><td><input class="note-input" type="text" placeholder="הערה..." value="' + noteVal.replace(/"/g,'&quot;') + '" onchange="notes[\'' + bc + '\']=this.value" oninput="notes[\'' + bc + '\']=this.value"></td></tr>';
   }
   tbody.innerHTML = rows;
 
