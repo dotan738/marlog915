@@ -347,7 +347,7 @@ function renderGrid() {
     var btnClass = 'add-btn' + (inCart ? ' added' : '');
     var btnText = inCart ? '&#x2713; עודכן' : '+ הוסף';
     var qtyVal = cart[bc] || 1;
-    var brand = (p.brand && p.br || '';
+    var brand = p.br || '';
 
     var imgHtml;
     if (p.i && p.i !== '') {
@@ -431,7 +431,7 @@ function showOrder() {
     for (var j = 0; j < ALL_PRODUCTS.length; j++) {
       if ((ALL_PRODUCTS[j].barcode || ALL_PRODUCTS[j].makat) === bc) { p = ALL_PRODUCTS[j]; break; }
     }
-    var brand = (p && p.brand && p.br || '';
+    var brand = p ? p.br || '' : '';
     var name = p ? p.n : bc;
     var noteVal = notes[bc] || '';
     rows += '<tr><td>' + (i+1) + '</td><td>' + name + '</td><td style="font-family:monospace;font-size:0.75rem">' + bc + '</td><td>' + brand + '</td><td><input type="number" class="qty-input" style="width:60px" value="' + cart[bc] + '" min="1" oninput="updateCartQty(\'' + bc + '\',this.value)"></td><td><input class="note-input" type="text" placeholder="הערה..." value="' + noteVal.replace(/"/g,'&quot;') + '" onchange="notes[\'' + bc + '\']=this.value" oninput="notes[\'' + bc + '\']=this.value"></td></tr>';
@@ -458,7 +458,7 @@ function sendOrderEmail() {
     for (var j = 0; j < ALL_PRODUCTS.length; j++) {
       if ((ALL_PRODUCTS[j].barcode || ALL_PRODUCTS[j].makat) === bc) { p = ALL_PRODUCTS[j]; break; }
     }
-    var brand = (p && p.brand && p.br || '';
+    var brand = p ? p.br || '' : '';
     var name = p ? p.n : bc;
     body += (i+1) + '.\t' + name + '\t' + bc + '\t' + brand + '\t' + cart[bc] + (notes[bc] ? '\t[' + notes[bc] + ']' : '') + '\n';
   }
@@ -539,7 +539,7 @@ function exportToExcel() {
     for (var j = 0; j < ALL_PRODUCTS.length; j++) {
       if ((ALL_PRODUCTS[j].barcode || ALL_PRODUCTS[j].makat) === bc) { p = ALL_PRODUCTS[j]; break; }
     }
-    var brand = (p && p.brand && p.br || '';
+    var brand = p ? p.br || '' : '';
     var name = p ? p.n : bc;
     var note = notes[bc] || '';
     data.push([i + 1, name, bc, brand, cart[bc], note]);
