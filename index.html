@@ -76,16 +76,8 @@ body { font-family: Arial, Helvetica, sans-serif; background: #f4f6f9; color: #2
   transition: background 0.15s; white-space: nowrap;
 }
 .btn-share:hover { background: rgba(255,255,255,0.28); }
-.grid {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  gap: 16px;
-  padding: 20px 24px;
-  box-sizing: border-box;
-  width: 100%;
-}
-.card {
+#productGrid { display: flex !important; flex-direction: row !important; flex-wrap: wrap !important; gap: 16px; padding: 20px 24px; width: 100%; box-sizing: border-box; }
+.card { width: calc(20% - 13px) !important; min-width: 160px; flex-shrink: 0 !important;
   direction: rtl;
   width: calc(20% - 13px);
   min-width: 160px;
@@ -374,9 +366,7 @@ function renderGrid() {
     '</div>';
   }
   grid.innerHTML = html;
-  grid.style.cssText = 'display:flex;flex-direction:row;flex-wrap:wrap;gap:16px;padding:20px 24px;width:100%;box-sizing:border-box;';
-  var cards = grid.querySelectorAll('.card');
-  cards.forEach(function(c){ c.style.cssText += ';width:calc(20% - 14px);min-width:160px;flex-shrink:0;'; });
+
 }
 
 function addToCart(bc) {
