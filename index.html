@@ -374,7 +374,9 @@ function renderGrid() {
     '</div>';
   }
   grid.innerHTML = html;
-
+  grid.style.cssText = 'display:flex;flex-direction:row;flex-wrap:wrap;gap:16px;padding:20px 24px;width:100%;box-sizing:border-box;';
+  var cards = grid.querySelectorAll('.card');
+  cards.forEach(function(c){ c.style.cssText += ';width:calc(20% - 14px);min-width:160px;flex-shrink:0;'; });
 }
 
 function addToCart(bc) {
