@@ -329,7 +329,9 @@ function renderGrid() {
   }
   var html = '';
   var cardDir = ' dir="rtl"';
-  for (var i = 0; i < filtered.length; i++) {
+  loadMoreOffset = 60;
+  var renderLimit = Math.min(filtered.length, 60);
+  for (var i = 0; i < renderLimit; i++) {
     var p = filtered[i];
     var bc = p.b || '';
     var inCart = cart[bc] > 0;
