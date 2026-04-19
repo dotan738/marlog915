@@ -319,7 +319,11 @@ function filterProducts() {
     var name = (p.n || '').toLowerCase();
     var bc = (p.b || '').toLowerCase();
     var br = (p.br || '').toLowerCase();
-    if (q && name.indexOf(q) < 0 && bc.indexOf(q) < 0 && br.indexOf(q) < 0) return false;
+    if (q) {
+      var qClean = q.replace(/^0+/, ''); // remove leading zeros
+      var bcClean = bc.replace(/^0+/, '');
+      if (name.indexOf(q) < 0 && bc.indexOf(q) < 0 && br.indexOf(q) < 0 && bcClean.indexOf(qClean) < 0) return false;
+    }
     if (brand && p.brand !== brand) return false;
     return true;
   });
@@ -526,11 +530,16 @@ function openScanner() {
     scannerCodeReader = new ZXing.BrowserMultiFormatReader();
     scannerCodeReader.decodeFromVideoDevice(null, 'scannerVideo', function(result, err) {
       if (result) {
-        var code = result.getText();
+        var code = result.getText().trim();
         document.getElementById('searchInput').value = code;
         filterProducts();
-        document.getElementById('scannerResult').innerHTML = '<span style="color:#27ae60;font-weight:600;">✓ נסרק: ' + code + '</span>';
-        setTimeout(function() { closeScanner(); }, 1200);
+        var found = filtered.length;
+        document.getElementById('scannerResult').innerHTML = found > 0
+          ? '<span style="color:#27ae60;font-weight:600;">✓ נמצאו ' + found + ' מוצרים</span>'
+          : '<span style="color:#e74c3c;font-weight:600;">✗ לא נמצא ברקוד: ' + code + '</span>';
+        if (found > 0) {
+          setTimeout(function() { closeScanner(); }, 1000);
+        }
       }
     });
   } catch(e) {
